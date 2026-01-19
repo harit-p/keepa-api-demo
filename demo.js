@@ -20,19 +20,22 @@ const DOMAIN_ID = 1; // Amazon.com
  */
 async function demoKeepaBrandDiscovery(keyword) {
   try {
-    // 1️⃣ Build selection JSON for Keepa /query API
-    // Try minimal selection first
-    const selection = {
-      type: 0, // 0 = SEARCH type
-      value: keyword, // Use "value" instead of "term"
-      domainId: DOMAIN_ID
+    // 1️⃣ Build queryJSON for Keepa /query API
+    // Use "title" field for keyword search according to Keepa API docs
+    // Minimum perPage is 50 according to Keepa API documentation
+    const queryJSON = {
+      title: keyword,
+      page: 0,
+      perPage: 50
     };
 
-    // 2️⃣ Call /query (Product Finder) - Keepa API
+    // 2️⃣ Call /query API - Keepa API
+    // GET format: /query?key=<key>&domain=<domainId>&selection=<queryJSON>
     const queryUrl =
       "https://api.keepa.com/query" +
       `?key=${KEEPA_KEY}` +
-      `&selection=${encodeURIComponent(JSON.stringify(selection))}`;
+      `&domain=${DOMAIN_ID}` +
+      `&selection=${encodeURIComponent(JSON.stringify(queryJSON))}`;
 
     let queryRes;
     try {
@@ -63,13 +66,17 @@ async function demoKeepaBrandDiscovery(keyword) {
 
     console.log(`📦 Found ${asins.length} ASINs: ${asins.join(", ")}`);
 
+    // Limit to first 5 ASINs for demo (Keepa API may have limits on batch size)
+    const asinsToFetch = asins.slice(0, 5);
+    console.log(`📦 Fetching product details for ${asinsToFetch.length} ASINs: ${asinsToFetch.join(", ")}`);
+
     // 3️⃣ Call /product (hydrate ASINs)
+    // Keepa API format: /product?key=<key>&domain=<domainId>&asin=<asin1,asin2,...>
     const productUrl =
       "https://api.keepa.com/product" +
       `?key=${KEEPA_KEY}` +
       `&domain=${DOMAIN_ID}` +
-      `&asin=${asins.join(",")}` +
-      `&stats=180&history=0&offers=0`;
+      `&asin=${asinsToFetch.join(",")}`;
 
     let productRes;
     try {
