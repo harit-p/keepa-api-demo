@@ -40,13 +40,26 @@ async function demoKeepaBrandDiscovery(keyword) {
     try {
       queryRes = await axios.get(queryUrl);
     } catch (err) {
-      console.log("⚠️  Using demo fallback for /query (API call failed or using demo key)");
-      queryRes = { data: null };
+      console.error("❌ Keepa /query API error:", err.response?.data || err.message);
+      // If API key is invalid or API fails, return empty results
+      if (err.response?.status === 401 || err.response?.status === 403) {
+        throw new Error("Invalid Keepa API key. Please set KEEPA_KEY environment variable.");
+      }
+      throw new Error(`Keepa API error: ${err.response?.data?.error || err.message}`);
     }
 
-    // DEMO fallback (if no real key or API fails)
-    const asins =
-      queryRes.data?.asinList || ["B000123456", "B000654321"];
+    // Check if we got valid response
+    if (!queryRes.data || !queryRes.data.asinList) {
+      console.log("⚠️  No ASINs found in Keepa API response");
+      return [];
+    }
+
+    const asins = queryRes.data.asinList;
+    
+    if (!asins || asins.length === 0) {
+      console.log("⚠️  No ASINs found for keyword:", keyword);
+      return [];
+    }
 
     console.log(`📦 Found ${asins.length} ASINs: ${asins.join(", ")}`);
 
@@ -62,90 +75,33 @@ async function demoKeepaBrandDiscovery(keyword) {
     try {
       productRes = await axios.get(productUrl);
     } catch (err) {
-      console.log("⚠️  Using demo fallback for /product (API call failed or using demo key)");
-      productRes = { data: null };
+      console.error("❌ Keepa /product API error:", err.response?.data || err.message);
+      // If API key is invalid or API fails, return empty results
+      if (err.response?.status === 401 || err.response?.status === 403) {
+        throw new Error("Invalid Keepa API key. Please set KEEPA_KEY environment variable.");
+      }
+      throw new Error(`Keepa API error: ${err.response?.data?.error || err.message}`);
     }
 
-    // DEMO fallback products - keyword-specific mock data
-    const getMockProducts = (keyword) => {
-      const keywordLower = keyword.toLowerCase();
-      
-      // Different mock data based on keyword
-      if (keywordLower.includes("tablecraft") || keywordLower.includes("table")) {
-        return [
-          {
-            asin: "B000123456",
-            title: "TableCraft Stainless Steel Sauce Cup",
-            brand: "TableCraft",
-            manufacturer: "TableCraft Products"
-          },
-          {
-            asin: "B000654321",
-            title: "Table Craft Salt & Pepper Shaker",
-            brand: "Table Craft",
-            manufacturer: "Table Craft Products Corp"
-          }
-        ];
-      } else if (keywordLower.includes("kitchen") || keywordLower.includes("cookware")) {
-        return [
-          {
-            asin: "B001234567",
-            title: "KitchenAid Professional Stand Mixer",
-            brand: "KitchenAid",
-            manufacturer: "KitchenAid Inc"
-          },
-          {
-            asin: "B007654321",
-            title: "Kitchen Essentials Non-Stick Cookware Set",
-            brand: "Kitchen Essentials",
-            manufacturer: "Kitchen Essentials LLC"
-          }
-        ];
-      } else if (keywordLower.includes("coffee") || keywordLower.includes("brew")) {
-        return [
-          {
-            asin: "B002345678",
-            title: "Coffee Maker with Programmable Timer",
-            brand: "BrewMaster",
-            manufacturer: "BrewMaster Appliances"
-          },
-          {
-            asin: "B008765432",
-            title: "Premium Coffee Beans - Dark Roast",
-            brand: "CoffeeHouse",
-            manufacturer: "CoffeeHouse Roasters"
-          }
-        ];
-      } else if (keywordLower.includes("phone") || keywordLower.includes("mobile")) {
-        return [
-          {
-            asin: "B003456789",
-            title: "Smartphone 128GB - Latest Model",
-            brand: "TechPhone",
-            manufacturer: "TechPhone Corporation"
-          },
-          {
-            asin: "B009876543",
-            title: "Wireless Phone Charger Stand",
-            brand: "ChargeTech",
-            manufacturer: "ChargeTech Accessories"
-          }
-        ];
-      } else {
-        // No results found for this keyword
-        return [];
-      }
-    };
+    // Check if we got valid response
+    if (!productRes.data || !productRes.data.products) {
+      console.log("⚠️  No products found in Keepa API response");
+      return [];
+    }
 
-    const products = productRes.data?.products || getMockProducts(keyword);
+    // Keepa API returns products as an object with ASIN as key
+    const productsObject = productRes.data.products;
+    const products = Object.values(productsObject);
 
-    // 4️⃣ Format output
-    const result = products.map(p => ({
-      asin: p.asin,
-      title: p.title,
-      brand: p.brand,
-      manufacturer: p.manufacturer
-    }));
+    // 4️⃣ Format output - extract relevant fields from Keepa product data
+    const result = products
+      .filter(p => p && p.asin) // Filter out invalid products
+      .map(p => ({
+        asin: p.asin,
+        title: p.title || "N/A",
+        brand: p.brand || p.manufacturer || "N/A",
+        manufacturer: p.manufacturer || p.brand || "N/A"
+      }));
 
     return result;
   } catch (err) {

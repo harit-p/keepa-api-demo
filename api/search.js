@@ -33,7 +33,22 @@ export default async function handler(req, res) {
       });
     }
 
-    const results = await demoKeepaBrandDiscovery(keyword);
+    let results;
+    try {
+      results = await demoKeepaBrandDiscovery(keyword);
+    } catch (error) {
+      // Handle Keepa API errors
+      if (error.message.includes("Invalid Keepa API key")) {
+        return res.status(401).json({
+          success: false,
+          error: "Keepa API key is missing or invalid",
+          message: error.message,
+          hint: "Please set KEEPA_KEY environment variable in Vercel dashboard"
+        });
+      }
+      // Re-throw other errors to be caught by outer catch
+      throw error;
+    }
 
     // Handle no results case
     if (results.length === 0) {
@@ -46,7 +61,7 @@ export default async function handler(req, res) {
         explanation: {
           step1: "Called Keepa's /query API with keyword to discover ASINs",
           step2: "No ASINs found for the given keyword",
-          step3: "Try a different keyword like 'tablecraft', 'kitchen', 'coffee', or 'phone'"
+          step3: "Try a different keyword"
         }
       });
     }
