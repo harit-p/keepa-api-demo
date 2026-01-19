@@ -17,7 +17,7 @@ export default async function handler(req, res) {
 
     // Support both GET and POST
     if (req.method === 'GET') {
-      keyword = req.query?.keyword || req.query;
+      keyword = req.query?.keyword;
     } else if (req.method === 'POST') {
       // Parse body if it's a string (Vercel sometimes sends string)
       const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
