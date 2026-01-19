@@ -20,17 +20,15 @@ const DOMAIN_ID = 1; // Amazon.com
  */
 async function demoKeepaBrandDiscovery(keyword) {
   try {
-    // 1️⃣ Build selection JSON
+    // 1️⃣ Build selection JSON for Keepa /query API
+    // Try minimal selection first
     const selection = {
-      type: "SEARCH",
-      term: keyword,
-      domainId: DOMAIN_ID,
-      perPage: 5,
-      page: 0,
-      productType: [0, 1, 2]
+      type: 0, // 0 = SEARCH type
+      value: keyword, // Use "value" instead of "term"
+      domainId: DOMAIN_ID
     };
 
-    // 2️⃣ Call /query (Product Finder)
+    // 2️⃣ Call /query (Product Finder) - Keepa API
     const queryUrl =
       "https://api.keepa.com/query" +
       `?key=${KEEPA_KEY}` +
@@ -40,21 +38,23 @@ async function demoKeepaBrandDiscovery(keyword) {
     try {
       queryRes = await axios.get(queryUrl);
     } catch (err) {
-      console.error("❌ Keepa /query API error:", err.response?.data || err.message);
+      console.error("❌ Keepa /query API error:", JSON.stringify(err.response?.data, null, 2) || err.message);
       // If API key is invalid or API fails, return empty results
       if (err.response?.status === 401 || err.response?.status === 403) {
         throw new Error("Invalid Keepa API key. Please set KEEPA_KEY environment variable.");
       }
-      throw new Error(`Keepa API error: ${err.response?.data?.error || err.message}`);
+      const errorMsg = err.response?.data?.error?.message || JSON.stringify(err.response?.data?.error) || err.message;
+      throw new Error(`Keepa API error: ${errorMsg}`);
     }
 
     // Check if we got valid response
-    if (!queryRes.data || !queryRes.data.asinList) {
-      console.log("⚠️  No ASINs found in Keepa API response");
+    if (!queryRes.data) {
+      console.log("⚠️  Invalid response from Keepa API");
       return [];
     }
 
-    const asins = queryRes.data.asinList;
+    // Keepa API returns asinList in the response
+    const asins = queryRes.data.asinList || [];
     
     if (!asins || asins.length === 0) {
       console.log("⚠️  No ASINs found for keyword:", keyword);
