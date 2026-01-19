@@ -1,0 +1,55 @@
+// Vercel serverless function
+import { demoKeepaBrandDiscovery } from "../demo.js";
+
+export default async function handler(req, res) {
+  // Enable CORS
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  // Handle preflight
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
+  try {
+    let keyword;
+
+    // Support both GET and POST
+    if (req.method === 'GET') {
+      keyword = req.query.keyword;
+    } else if (req.method === 'POST') {
+      keyword = req.body?.keyword;
+    } else {
+      return res.status(405).json({ error: 'Method not allowed' });
+    }
+
+    if (!keyword) {
+      return res.status(400).json({
+        error: "Missing keyword parameter",
+        example: "/api/search?keyword=tablecraft"
+      });
+    }
+
+    const results = await demoKeepaBrandDiscovery(keyword);
+
+    return res.status(200).json({
+      success: true,
+      keyword,
+      count: results.length,
+      products: results,
+      explanation: {
+        step1: "Called Keepa's /query API with keyword to discover ASINs",
+        step2: "Called /product API with ASINs to fetch product details (brand, manufacturer)",
+        step3: "ASIN is the join key between the two API calls"
+      }
+    });
+  } catch (error) {
+    console.error("❌ API Error:", error);
+    return res.status(500).json({
+      error: "Internal server error",
+      message: error.message
+    });
+  }
+}
+

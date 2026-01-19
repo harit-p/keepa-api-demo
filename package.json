@@ -1,0 +1,22 @@
+{
+  "name": "keepa-api-demo",
+  "version": "1.0.0",
+  "description": "Demo showing Keepa API integration for brand discovery",
+  "main": "demo.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "demo": "node demo.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["keepa", "api", "demo"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  }
+}
+

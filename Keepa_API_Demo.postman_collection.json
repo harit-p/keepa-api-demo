@@ -1,0 +1,78 @@
+{
+  "info": {
+    "name": "Keepa API Demo",
+    "description": "Demo collection for Keepa API integration showing /query and /product calls",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": ["{{base_url}}"],
+          "path": ["health"]
+        }
+      }
+    },
+    {
+      "name": "Search Products (GET)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/search?keyword=tablecraft",
+          "host": ["{{base_url}}"],
+          "path": ["api", "search"],
+          "query": [
+            {
+              "key": "keyword",
+              "value": "tablecraft",
+              "description": "Search keyword"
+            }
+          ]
+        },
+        "description": "Search products by keyword using GET method"
+      },
+      "response": []
+    },
+    {
+      "name": "Search Products (POST)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"keyword\": \"tablecraft\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/search",
+          "host": ["{{base_url}}"],
+          "path": ["api", "search"]
+        },
+        "description": "Search products by keyword using POST method"
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ]
+}
+
