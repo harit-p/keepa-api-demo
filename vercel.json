@@ -11,9 +11,6 @@
       "src": "/api/search",
       "dest": "/api/search.js"
     }
-  ],
-  "env": {
-    "KEEPA_KEY": "@keepa_key"
-  }
+  ]
 }
 
