@@ -66,21 +66,91 @@ async function demoKeepaBrandDiscovery(keyword) {
       productRes = { data: null };
     }
 
-    // DEMO fallback products
-    const products = productRes.data?.products || [
-      {
-        asin: "B000123456",
-        title: "TableCraft Stainless Steel Sauce Cup",
-        brand: "TableCraft",
-        manufacturer: "TableCraft Products"
-      },
-      {
-        asin: "B000654321",
-        title: "Table Craft Salt & Pepper Shaker",
-        brand: "Table Craft",
-        manufacturer: "Table Craft Products Corp"
+    // DEMO fallback products - keyword-specific mock data
+    const getMockProducts = (keyword) => {
+      const keywordLower = keyword.toLowerCase();
+      
+      // Different mock data based on keyword
+      if (keywordLower.includes("tablecraft") || keywordLower.includes("table")) {
+        return [
+          {
+            asin: "B000123456",
+            title: "TableCraft Stainless Steel Sauce Cup",
+            brand: "TableCraft",
+            manufacturer: "TableCraft Products"
+          },
+          {
+            asin: "B000654321",
+            title: "Table Craft Salt & Pepper Shaker",
+            brand: "Table Craft",
+            manufacturer: "Table Craft Products Corp"
+          }
+        ];
+      } else if (keywordLower.includes("kitchen") || keywordLower.includes("cookware")) {
+        return [
+          {
+            asin: "B001234567",
+            title: "KitchenAid Professional Stand Mixer",
+            brand: "KitchenAid",
+            manufacturer: "KitchenAid Inc"
+          },
+          {
+            asin: "B007654321",
+            title: "Kitchen Essentials Non-Stick Cookware Set",
+            brand: "Kitchen Essentials",
+            manufacturer: "Kitchen Essentials LLC"
+          }
+        ];
+      } else if (keywordLower.includes("coffee") || keywordLower.includes("brew")) {
+        return [
+          {
+            asin: "B002345678",
+            title: "Coffee Maker with Programmable Timer",
+            brand: "BrewMaster",
+            manufacturer: "BrewMaster Appliances"
+          },
+          {
+            asin: "B008765432",
+            title: "Premium Coffee Beans - Dark Roast",
+            brand: "CoffeeHouse",
+            manufacturer: "CoffeeHouse Roasters"
+          }
+        ];
+      } else if (keywordLower.includes("phone") || keywordLower.includes("mobile")) {
+        return [
+          {
+            asin: "B003456789",
+            title: "Smartphone 128GB - Latest Model",
+            brand: "TechPhone",
+            manufacturer: "TechPhone Corporation"
+          },
+          {
+            asin: "B009876543",
+            title: "Wireless Phone Charger Stand",
+            brand: "ChargeTech",
+            manufacturer: "ChargeTech Accessories"
+          }
+        ];
+      } else {
+        // Generic fallback for any other keyword
+        return [
+          {
+            asin: `B00${Math.floor(Math.random() * 1000000)}`,
+            title: `${keyword} Premium Product`,
+            brand: keyword.charAt(0).toUpperCase() + keyword.slice(1),
+            manufacturer: `${keyword} Manufacturing Co.`
+          },
+          {
+            asin: `B00${Math.floor(Math.random() * 1000000)}`,
+            title: `${keyword} Deluxe Edition`,
+            brand: keyword.charAt(0).toUpperCase() + keyword.slice(1) + " Pro",
+            manufacturer: `${keyword} Products Inc`
+          }
+        ];
       }
-    ];
+    };
+
+    const products = productRes.data?.products || getMockProducts(keyword);
 
     // 4️⃣ Format output
     const result = products.map(p => ({
