@@ -17,9 +17,11 @@ export default async function handler(req, res) {
 
     // Support both GET and POST
     if (req.method === 'GET') {
-      keyword = req.query.keyword;
+      keyword = req.query?.keyword || req.query;
     } else if (req.method === 'POST') {
-      keyword = req.body?.keyword;
+      // Parse body if it's a string (Vercel sometimes sends string)
+      const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+      keyword = body?.keyword;
     } else {
       return res.status(405).json({ error: 'Method not allowed' });
     }
