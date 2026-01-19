@@ -132,21 +132,8 @@ async function demoKeepaBrandDiscovery(keyword) {
           }
         ];
       } else {
-        // Generic fallback for any other keyword
-        return [
-          {
-            asin: `B00${Math.floor(Math.random() * 1000000)}`,
-            title: `${keyword} Premium Product`,
-            brand: keyword.charAt(0).toUpperCase() + keyword.slice(1),
-            manufacturer: `${keyword} Manufacturing Co.`
-          },
-          {
-            asin: `B00${Math.floor(Math.random() * 1000000)}`,
-            title: `${keyword} Deluxe Edition`,
-            brand: keyword.charAt(0).toUpperCase() + keyword.slice(1) + " Pro",
-            manufacturer: `${keyword} Products Inc`
-          }
-        ];
+        // No results found for this keyword
+        return [];
       }
     };
 

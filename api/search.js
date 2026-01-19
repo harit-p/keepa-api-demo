@@ -35,6 +35,22 @@ export default async function handler(req, res) {
 
     const results = await demoKeepaBrandDiscovery(keyword);
 
+    // Handle no results case
+    if (results.length === 0) {
+      return res.status(200).json({
+        success: true,
+        keyword,
+        count: 0,
+        products: [],
+        message: "No results found for this keyword",
+        explanation: {
+          step1: "Called Keepa's /query API with keyword to discover ASINs",
+          step2: "No ASINs found for the given keyword",
+          step3: "Try a different keyword like 'tablecraft', 'kitchen', 'coffee', or 'phone'"
+        }
+      });
+    }
+
     return res.status(200).json({
       success: true,
       keyword,
