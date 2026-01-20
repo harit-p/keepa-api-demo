@@ -87,9 +87,11 @@ async function demoKeepaBrandDiscovery(keyword) {
 
     console.log(`📦 Found ${asins.length} ASINs: ${asins.join(", ")}`);
 
-    // Limit to first 5 ASINs for demo (Keepa API may have limits on batch size)
-    const asinsToFetch = asins.slice(0, 5);
-    console.log(`📦 Fetching product details for ${asinsToFetch.length} ASINs: ${asinsToFetch.join(", ")}`);
+    // Limit to first 1 ASIN for low token plans (reduces cost from ~6-7 tokens to ~2-3 tokens per search)
+    // Change to 5 if you have 20+ tokens/minute plan
+    const asinsToFetch = asins.slice(0, 1);
+    console.log(`📦 Fetching product details for ${asinsToFetch.length} ASIN(s): ${asinsToFetch.join(", ")}`);
+    console.log(`💡 Token usage: ~2-3 tokens (reduced from 6-7 by fetching 1 ASIN instead of 5)`);
 
     // 3️⃣ Call /product (hydrate ASINs)
     // Keepa API format: /product?key=<key>&domain=<domainId>&asin=<asin1,asin2,...>
