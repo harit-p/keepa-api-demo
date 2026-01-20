@@ -55,12 +55,18 @@ export default async function handler(req, res) {
         });
       }
       
-      if (error.message.includes("rate limit")) {
+      if (error.message.includes("rate limit") || error.message.includes("Rate limit")) {
         return res.status(429).json({
           success: false,
           error: "Keepa API rate limit exceeded",
           message: error.message,
-          hint: "Please wait a few minutes and try again"
+          hint: "Your Keepa API token balance has been exhausted or you've hit the rate limit.",
+          solutions: [
+            "Wait a few minutes - tokens refill automatically over time",
+            "Check your Keepa account dashboard for token balance",
+            "Reduce the number of API calls or wait between requests"
+          ],
+          note: "Keepa API uses a token-based system. Each API call consumes tokens, and tokens refill gradually."
         });
       }
       
