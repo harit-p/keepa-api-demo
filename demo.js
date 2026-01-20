@@ -45,13 +45,16 @@ async function demoKeepaBrandDiscovery(keyword) {
 
     // 2️⃣ Call /query API - Keepa API
     // GET format: /query?key=<key>&domain=<domainId>&selection=<queryJSON>
+    const encodedSelection = encodeURIComponent(JSON.stringify(queryJSON));
     const queryUrl =
       "https://api.keepa.com/query" +
       `?key=${KEEPA_KEY}` +
       `&domain=${DOMAIN_ID}` +
-      `&selection=${encodeURIComponent(JSON.stringify(queryJSON))}`;
+      `&selection=${encodedSelection}`;
     
     console.log(`📡 Calling Keepa /query API...`);
+    console.log(`📋 Query JSON:`, JSON.stringify(queryJSON, null, 2));
+    console.log(`🔗 Query URL (partial):`, `https://api.keepa.com/query?key=***&domain=${DOMAIN_ID}&selection=${encodedSelection.substring(0, 100)}...`);
 
     let queryRes;
     try {
@@ -74,14 +77,26 @@ async function demoKeepaBrandDiscovery(keyword) {
     // Check if we got valid response
     if (!queryRes.data) {
       console.log("⚠️  Invalid response from Keepa API");
+      console.log("📋 Full response:", JSON.stringify(queryRes, null, 2));
       return [];
     }
+
+    // Log full response for debugging
+    console.log("📋 Keepa /query API response:", JSON.stringify(queryRes.data, null, 2));
+    console.log("📊 Response keys:", Object.keys(queryRes.data || {}));
+    console.log("📊 asinList:", queryRes.data.asinList);
+    console.log("📊 totalResults:", queryRes.data.totalResults);
 
     // Keepa API returns asinList in the response
     const asins = queryRes.data.asinList || [];
     
     if (!asins || asins.length === 0) {
       console.log("⚠️  No ASINs found for keyword:", keyword);
+      console.log("📋 Full query response:", JSON.stringify(queryRes.data, null, 2));
+      console.log("💡 This might mean:");
+      console.log("   - The keyword doesn't match any products");
+      console.log("   - The query format might need adjustment");
+      console.log("   - Try a more specific keyword");
       return [];
     }
 
