@@ -25,6 +25,15 @@ if (!KEEPA_KEY || KEEPA_KEY === "demo-key") {
  */
 async function demoKeepaBrandDiscovery(keyword) {
   try {
+    // Check if API key is set FIRST
+    if (!KEEPA_KEY || KEEPA_KEY === "demo-key") {
+      console.error("❌ KEEPA_KEY is missing or invalid");
+      throw new Error("Invalid Keepa API key. Please set KEEPA_KEY environment variable.");
+    }
+    
+    console.log(`🔑 API Key present: ${KEEPA_KEY.substring(0, 10)}...`);
+    console.log(`🔍 Searching for keyword: "${keyword}"`);
+
     // 1️⃣ Build queryJSON for Keepa /query API
     // Use "title" field for keyword search according to Keepa API docs
     // Minimum perPage is 50 according to Keepa API documentation
@@ -41,11 +50,8 @@ async function demoKeepaBrandDiscovery(keyword) {
       `?key=${KEEPA_KEY}` +
       `&domain=${DOMAIN_ID}` +
       `&selection=${encodeURIComponent(JSON.stringify(queryJSON))}`;
-
-    // Check if API key is set
-    if (!KEEPA_KEY || KEEPA_KEY === "demo-key") {
-      throw new Error("Invalid Keepa API key. Please set KEEPA_KEY environment variable.");
-    }
+    
+    console.log(`📡 Calling Keepa /query API...`);
 
     let queryRes;
     try {

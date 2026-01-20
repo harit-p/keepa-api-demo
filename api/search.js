@@ -33,12 +33,17 @@ export default async function handler(req, res) {
       });
     }
 
+    // Log environment check
+    console.log("🔍 Environment check - KEEPA_KEY exists:", !!process.env.KEEPA_KEY);
+    console.log("🔍 KEEPA_KEY length:", process.env.KEEPA_KEY?.length || 0);
+    
     let results;
     try {
       results = await demoKeepaBrandDiscovery(keyword);
     } catch (error) {
       // Handle Keepa API errors with detailed messages
       console.error("❌ Keepa API Error:", error.message);
+      console.error("❌ Error stack:", error.stack);
       
       if (error.message.includes("Invalid Keepa API key") || error.message.includes("KEEPA_KEY")) {
         return res.status(401).json({
