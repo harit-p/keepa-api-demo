@@ -86,6 +86,16 @@ async function demoKeepaBrandDiscovery(keyword) {
     console.log("📊 Response keys:", Object.keys(queryRes.data || {}));
     console.log("📊 asinList:", queryRes.data.asinList);
     console.log("📊 totalResults:", queryRes.data.totalResults);
+    
+    // Extract token usage from Keepa API response (if available)
+    const queryTokensUsed = queryRes.data.tokensUsed || queryRes.data.tokens || null;
+    const queryTokensLeft = queryRes.data.tokensLeft || queryRes.data.tokensRemaining || null;
+    if (queryTokensUsed !== null) {
+      console.log(`💰 /query API tokens used: ${queryTokensUsed}`);
+    }
+    if (queryTokensLeft !== null) {
+      console.log(`💰 Tokens remaining: ${queryTokensLeft}`);
+    }
 
     // Keepa API returns asinList in the response
     const asins = queryRes.data.asinList || [];
@@ -106,7 +116,7 @@ async function demoKeepaBrandDiscovery(keyword) {
     // Change to 5 if you have 20+ tokens/minute plan
     const asinsToFetch = asins.slice(0, 1);
     console.log(`📦 Fetching product details for ${asinsToFetch.length} ASIN(s): ${asinsToFetch.join(", ")}`);
-    console.log(`💡 Token usage: ~2-3 tokens (reduced from 6-7 by fetching 1 ASIN instead of 5)`);
+    console.log(`💡 Token usage: ~11 tokens total (~5-6 for /query + ~5-6 for /product with 1 ASIN)`);
 
     // 3️⃣ Call /product (hydrate ASINs)
     // Keepa API format: /product?key=<key>&domain=<domainId>&asin=<asin1,asin2,...>
@@ -138,6 +148,22 @@ async function demoKeepaBrandDiscovery(keyword) {
     if (!productRes.data || !productRes.data.products) {
       console.log("⚠️  No products found in Keepa API response");
       return [];
+    }
+    
+    // Extract token usage from /product API response (if available)
+    const productTokensUsed = productRes.data.tokensUsed || productRes.data.tokens || null;
+    const productTokensLeft = productRes.data.tokensLeft || productRes.data.tokensRemaining || null;
+    if (productTokensUsed !== null) {
+      console.log(`💰 /product API tokens used: ${productTokensUsed}`);
+    }
+    if (productTokensLeft !== null) {
+      console.log(`💰 Tokens remaining: ${productTokensLeft}`);
+    }
+    
+    // Calculate total token usage
+    const totalTokensUsed = (queryTokensUsed || 0) + (productTokensUsed || 0);
+    if (totalTokensUsed > 0) {
+      console.log(`💰 Total tokens used for this search: ${totalTokensUsed}`);
     }
 
     // Keepa API returns products as an object with ASIN as key

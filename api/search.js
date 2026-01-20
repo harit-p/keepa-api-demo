@@ -62,16 +62,16 @@ export default async function handler(req, res) {
           message: error.message,
           hint: "Your Keepa API token balance has been exhausted or you've hit the rate limit.",
           tokenInfo: {
-            estimatedCost: "~2-3 tokens per search (optimized for low token plans)",
+            actualCost: "~11 tokens per search (based on real testing)",
             currentPlan: "1 token/minute refill rate detected",
-            waitTime: "Wait 2-3 minutes for tokens to refill before next search",
-            upgrade: "Consider upgrading to 20+ tokens/minute plan for better performance"
+            waitTime: "Wait ~11 minutes for tokens to accumulate before next search",
+            upgrade: "Consider upgrading to 20+ tokens/minute plan for better performance (allows 1-2 searches per minute)"
           },
           solutions: [
             "Wait 2-3 minutes for tokens to refill (1 token/minute rate)",
             "Check your Keepa account: https://keepa.com/#!api",
             "Upgrade your Keepa plan for more tokens/minute",
-            "This demo is optimized to use only 1 ASIN (2-3 tokens) instead of 5 ASINs (6-7 tokens)"
+            "Actual token cost: ~11 tokens per search (5-6 for /query + 5-6 for /product with 1 ASIN)"
           ],
           note: "Keepa API uses a token-based system. Each API call consumes tokens, and tokens refill gradually."
         });
