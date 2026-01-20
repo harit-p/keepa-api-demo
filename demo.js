@@ -4,8 +4,13 @@ import dotenv from "dotenv";
 // Load environment variables
 dotenv.config();
 
-const KEEPA_KEY = process.env.KEEPA_KEY || "demo-key"; // Use dummy key for demo if not set
+const KEEPA_KEY = process.env.KEEPA_KEY;
 const DOMAIN_ID = 1; // Amazon.com
+
+// Validate API key
+if (!KEEPA_KEY || KEEPA_KEY === "demo-key") {
+  console.warn("⚠️  WARNING: KEEPA_KEY not set or using demo key. API calls will fail.");
+}
 
 /**
  * Demo function that shows how Keepa API calls work together
@@ -37,14 +42,22 @@ async function demoKeepaBrandDiscovery(keyword) {
       `&domain=${DOMAIN_ID}` +
       `&selection=${encodeURIComponent(JSON.stringify(queryJSON))}`;
 
+    // Check if API key is set
+    if (!KEEPA_KEY || KEEPA_KEY === "demo-key") {
+      throw new Error("Invalid Keepa API key. Please set KEEPA_KEY environment variable.");
+    }
+
     let queryRes;
     try {
       queryRes = await axios.get(queryUrl);
     } catch (err) {
       console.error("❌ Keepa /query API error:", JSON.stringify(err.response?.data, null, 2) || err.message);
-      // If API key is invalid or API fails, return empty results
+      // If API key is invalid or API fails, throw error
       if (err.response?.status === 401 || err.response?.status === 403) {
         throw new Error("Invalid Keepa API key. Please set KEEPA_KEY environment variable.");
+      }
+      if (err.response?.status === 429) {
+        throw new Error("Keepa API rate limit exceeded. Please wait and try again.");
       }
       const errorMsg = err.response?.data?.error?.message || JSON.stringify(err.response?.data?.error) || err.message;
       throw new Error(`Keepa API error: ${errorMsg}`);
@@ -82,12 +95,16 @@ async function demoKeepaBrandDiscovery(keyword) {
     try {
       productRes = await axios.get(productUrl);
     } catch (err) {
-      console.error("❌ Keepa /product API error:", err.response?.data || err.message);
-      // If API key is invalid or API fails, return empty results
+      console.error("❌ Keepa /product API error:", JSON.stringify(err.response?.data, null, 2) || err.message);
+      // If API key is invalid or API fails, throw error
       if (err.response?.status === 401 || err.response?.status === 403) {
         throw new Error("Invalid Keepa API key. Please set KEEPA_KEY environment variable.");
       }
-      throw new Error(`Keepa API error: ${err.response?.data?.error || err.message}`);
+      if (err.response?.status === 429) {
+        throw new Error("Keepa API rate limit exceeded. Please wait and try again.");
+      }
+      const errorMsg = err.response?.data?.error?.message || JSON.stringify(err.response?.data?.error) || err.message;
+      throw new Error(`Keepa API error: ${errorMsg}`);
     }
 
     // Check if we got valid response

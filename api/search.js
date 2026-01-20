@@ -37,17 +37,35 @@ export default async function handler(req, res) {
     try {
       results = await demoKeepaBrandDiscovery(keyword);
     } catch (error) {
-      // Handle Keepa API errors
-      if (error.message.includes("Invalid Keepa API key")) {
+      // Handle Keepa API errors with detailed messages
+      console.error("❌ Keepa API Error:", error.message);
+      
+      if (error.message.includes("Invalid Keepa API key") || error.message.includes("KEEPA_KEY")) {
         return res.status(401).json({
           success: false,
           error: "Keepa API key is missing or invalid",
           message: error.message,
-          hint: "Please set KEEPA_KEY environment variable in Vercel dashboard"
+          hint: "Please set KEEPA_KEY environment variable in Vercel dashboard",
+          troubleshooting: "Go to Vercel Dashboard → Settings → Environment Variables → Add KEEPA_KEY"
         });
       }
-      // Re-throw other errors to be caught by outer catch
-      throw error;
+      
+      if (error.message.includes("rate limit")) {
+        return res.status(429).json({
+          success: false,
+          error: "Keepa API rate limit exceeded",
+          message: error.message,
+          hint: "Please wait a few minutes and try again"
+        });
+      }
+      
+      // Return error details for debugging
+      return res.status(500).json({
+        success: false,
+        error: "Keepa API error",
+        message: error.message,
+        keyword: keyword
+      });
     }
 
     // Handle no results case
