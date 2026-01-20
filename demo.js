@@ -63,7 +63,9 @@ async function demoKeepaBrandDiscovery(keyword) {
         throw new Error("Invalid Keepa API key. Please set KEEPA_KEY environment variable.");
       }
       if (err.response?.status === 429) {
-        throw new Error("Keepa API rate limit exceeded. Please wait and try again.");
+        const rateLimitMsg = err.response?.data?.error?.message || "Rate limit exceeded";
+        console.error(`⏱️  Rate limit details:`, JSON.stringify(err.response?.data, null, 2));
+        throw new Error(`Keepa API rate limit exceeded: ${rateLimitMsg}. Please wait and try again.`);
       }
       const errorMsg = err.response?.data?.error?.message || JSON.stringify(err.response?.data?.error) || err.message;
       throw new Error(`Keepa API error: ${errorMsg}`);
@@ -107,7 +109,9 @@ async function demoKeepaBrandDiscovery(keyword) {
         throw new Error("Invalid Keepa API key. Please set KEEPA_KEY environment variable.");
       }
       if (err.response?.status === 429) {
-        throw new Error("Keepa API rate limit exceeded. Please wait and try again.");
+        const rateLimitMsg = err.response?.data?.error?.message || "Rate limit exceeded";
+        console.error(`⏱️  Rate limit details:`, JSON.stringify(err.response?.data, null, 2));
+        throw new Error(`Keepa API rate limit exceeded: ${rateLimitMsg}. Please wait and try again.`);
       }
       const errorMsg = err.response?.data?.error?.message || JSON.stringify(err.response?.data?.error) || err.message;
       throw new Error(`Keepa API error: ${errorMsg}`);
